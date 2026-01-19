@@ -31,7 +31,12 @@ class WaitingForQuantityHandler(BaseHandler):
         self,
         intent: Intent,
         context: ConversationContext,
+<<<<<<< Updated upstream:app/state_machine/handlers/item/waiting_for_quantity_handler.py
         user_text: str,
+=======
+        normalized_text: str,
+        session: Session = None,
+>>>>>>> Stashed changes:app/state_machine/handlers/item/add_item/waiting_for_quantity_handler.py
     ) -> HandlerResult:
 
         # Global cancel
@@ -44,7 +49,7 @@ class WaitingForQuantityHandler(BaseHandler):
 
         # Try parsing numeric quantity
         quantity = None
-        text = user_text.lower().strip()
+        text = normalized_text.lower().strip()
 
         if text.isdigit():
             quantity = int(text)

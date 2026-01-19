@@ -2,10 +2,9 @@
 
 from typing import Dict, Set
 
-from app.nlu.intent_resolution.intent_result import IntentResult
 from app.state_machine.conversation_state import ConversationState
 from app.state_machine.route_result import RouteResult
-from app.nlu.intent_resolution.intent import Intent
+from app.nlu.intent import Intent
 
 
 class StateRouter:
@@ -99,47 +98,75 @@ class StateRouter:
             },
         }
 
+<<<<<<< Updated upstream
     def route(
-            self,
-            state: ConversationState,
-            intent_result: IntentResult,
+        self,
+        state: ConversationState,
+        intent: Intent,
     ) -> RouteResult:
-
-        # 🔹 Start with linguistic intent
-        effective_intent = intent_result.intent
-
-        # 🔒 State-based interpretation (NO mutation)
-        if state in {
-            ConversationState.WAITING_FOR_SIDE,
-            ConversationState.WAITING_FOR_MODIFIER,
-            ConversationState.WAITING_FOR_SIZE,
-            ConversationState.WAITING_FOR_QUANTITY,
-        }:
-            # Selection text like "american cheese"
-            # should NOT be treated as ADD_ITEM
-            if effective_intent == Intent.ADD_ITEM:
-                effective_intent = Intent.UNKNOWN
+        """
+        Determines whether the given intent is allowed in the current state.
+        """
 
         allowed_intents = self._allowed_intents.get(state, set())
 
-        if effective_intent in allowed_intents:
+=======
+    def route(self, state: ConversationState, intent_result: IntentResult) -> RouteResult:
+        intent = intent_result.intent
+
+        # 🔹 ADD ITEM always starts add-item task
+        if state == ConversationState.IDLE and intent == Intent.ADD_ITEM:
+            return RouteResult(
+                allowed=True,
+                handler_name="add_item_handler",
+            )
+
+        # 🔹 END ADDING / START ORDER
+        if state == ConversationState.IDLE and intent in {
+            Intent.END_ADDING,
+            Intent.START_ORDER,
+        }:
+            return RouteResult(
+                allowed=True,
+                handler_name="start_order_handler",
+            )
+
+        # 🔹 Payment flow
+        if state == ConversationState.WAITING_FOR_PAYMENT:
+            return RouteResult(
+                allowed=True,
+                handler_name="waiting_for_payment_handler",
+            )
+
+        # 🔒 Default state-based routing
+        allowed_intents = self._allowed_intents.get(state, set())
+>>>>>>> Stashed changes
+        if intent in allowed_intents:
             return RouteResult(
                 allowed=True,
                 handler_name=f"{state.name.lower()}_handler",
             )
 
-        # Global cancel escape hatch
-        if effective_intent == Intent.CANCEL and state != ConversationState.IDLE:
+<<<<<<< Updated upstream
+        # Cancellation override (global escape hatch)
+=======
+>>>>>>> Stashed changes
+        if intent == Intent.CANCEL and state != ConversationState.IDLE:
             return RouteResult(
                 allowed=True,
                 handler_name="cancel_handler",
             )
 
+<<<<<<< Updated upstream
         return RouteResult(
             allowed=False,
             reason=(
-                f"Intent {effective_intent.name} not allowed in state {state.name}. "
+                f"Intent {intent.name} not allowed in state {state.name}. "
                 "Please complete or cancel the current action first."
             ),
         )
+=======
+        return RouteResult(allowed=False)
 
+
+>>>>>>> Stashed changes

@@ -1,5 +1,6 @@
 # app/state_machine/handlers/item/add_item_handler.py
-
+from app.nlu.query_normalizers.query_normalizer_pipeline import QueryNormalizationPipeline
+from app.session.session import Session
 from app.state_machine.base_handler import BaseHandler
 from app.state_machine.handler_result import HandlerResult
 from app.state_machine.conversation_state import ConversationState
@@ -16,14 +17,16 @@ class AddItemHandler(BaseHandler):
     Resolves item using MenuRepository (entity-first).
     """
 
-    def __init__(self, menu_repo: MenuRepository) -> None:
+    def __init__(self, menu_repo: MenuRepository, normalizer: QueryNormalizationPipeline,) -> None:
         self.menu_repo = menu_repo
+        self.normalizer = normalizer
 
     def handle(
         self,
         intent: Intent,
         context: ConversationContext,
-        user_text: str,
+        normalized_text: str,
+        session: Session = None,
     ) -> HandlerResult:
 
         if intent != Intent.ADD_ITEM:
@@ -35,7 +38,8 @@ class AddItemHandler(BaseHandler):
         # -----------------------------
         # Resolve item from menu
         # -----------------------------
-        item = self.menu_repo.resolve_item(user_text)
+
+        item = self.menu_repo.resolve_item(normalized_text)
 
         if not item:
             return HandlerResult(
@@ -64,4 +68,5 @@ class AddItemHandler(BaseHandler):
         return HandlerResult(
             next_state=next_state,
             response_key=_response_key_for_state(next_state),
+            response_payload=None
         )

@@ -95,8 +95,6 @@ FILLER_PAT = re.compile(
     re.I,
 )
 
-<<<<<<< Updated upstream
-=======
 CHOICE_FILLER_PAT = re.compile(
     r"""
     ^(
@@ -111,7 +109,6 @@ CHOICE_FILLER_PAT = re.compile(
     """,
     re.I | re.X,
 )
->>>>>>> Stashed changes
 
 # def strip_fillers(text: str) -> str:
 #     prev = None
